@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>To-Do List</title>
+    <style>
+        /* Adicione seus estilos aqui */
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            margin: 5px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>To-Do List</h1>
+
+    <form id="taskForm">
+        <label for="task">Tarefa:</label>
+        <input type="text" id="task" name="task">
+        <label for="client">Cliente:</label>
+        <input type="text" id="client" name="client">
+        <label for="phone">Celular:</label>
+        <input type="text" id="phone" name="phone">
+        <label for="service">Serviço:</label>
+        <input type="text" id="service" name="service">
+        <button type="submit">Adicionar</button>
+        <button type="click" id="saveFile">Salve</button>
+    </form>
+
+    <ul id="taskList">
+        </ul>
+
+    <script>
+
+        const taskForm = document.getElementById('taskForm');
+const taskList = document.getElementById('taskList');
+const saveFileButton = document.getElementById('saveFile');
+
+let tasks = [];
+
+taskForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const task = {
+        text: taskForm.client.value,
+        completed: false
+    };
+    tasks.push(task);
+    renderTasks();
+    taskForm.reset();
+});
+
+function renderTasks() {
+    taskList.innerHTML = '';
+    tasks.forEach((task, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <input type="checkbox" ${task.completed ? 'checked' : ''}>
+            <span class="${task.completed ? 'completed' : ''}">${task.text}</span>
+            <button class="delete">Excluir</button>
+        `;
+        taskList.appendChild(li);
+
+        // ... (restante do código para marcar como concluída e excluir)
+    });
+}
+
+saveFileButton.addEventListener('click', () => {
+    const filename = prompt('Digite o nome do arquivo JSON (ex: minhas_tarefas.json):');
+
+    if (filename) {
+        const data = JSON.stringify(tasks, null, 2);
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+    }
+});
+    </script>
+</body>
+</html>

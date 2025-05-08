@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+            color: #007bff;
+        }
+        #taskForm, #saveForm {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        #taskForm input, #taskForm textarea, #saveForm input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        #taskForm button, #saveForm button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #taskList {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 0;
+            list-style-type: none;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        #taskList li {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #taskList li:last-child {
+            border-bottom: none;
+        }
+        .task-buttons button {
+            margin-left: 5px;
+            padding: 5px 10px;
+            border: 1px solid #007bff;
+            background-color: #fff;
+            color: #007bff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .task-buttons button:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Minha To-Do List</h1>
+
+    <!-- Formulário para adicionar tarefas -->
+    <form id="taskForm">
+        <input type="text" id="taskName" placeholder="Tarefa" required>
+        <input type="datetime-local" id="taskDate" value="" required>
+        <textarea id="taskDescription" placeholder="Descrição"></textarea>
+        <label>
+            <input type="checkbox" id="inProgress" checked> Em Andamento
+        </label>
+        <label>
+            <input type="checkbox" id="completed"> Finalizado
+        </label>
+        <button type="button" id="addTaskBtn">Adicionar Tarefa</button>
+    </form>
+
+    <!-- Lista de tarefas -->
+    <ul id="taskList"></ul>
+
+    <script>
+        const taskList = document.getElementById("taskList");
+
+        // Adicionar tarefa
+        document.getElementById("addTaskBtn").addEventListener("click", () => {
+            const taskName = document.getElementById("taskName").value;
+            const taskDate = document.getElementById("taskDate").value;
+            const taskDescription = document.getElementById("taskDescription").value;
+            const inProgress = document.getElementById("inProgress").checked;
+            const completed = document.getElementById("completed").checked;
+
+            if (!taskName || !taskDate) {
+                alert("Por favor, preencha os campos obrigatórios.");
+                return;
+            }
+
+            const li = document.createElement("li");
+            li.innerHTML = `
+                <span>
+                    <strong>${taskName}</strong><br>
+                    <small>${taskDate}</small><br>
+                    <p>${taskDescription}</p>
+                </span>
+                <div class="task-buttons">
+                    <button onclick="enterTask(this)">Entrar</button>
+                    <button onclick="editTask(this)">Editar</button>
+                    <button onclick="removeTask(this)">Remover</button>
+                </div>
+            `;
+            li.dataset.inProgress = inProgress;
+            li.dataset.completed = completed;
+            taskList.appendChild(li);
+
+            // Limpar formulário
+            document.getElementById("taskForm").reset();
+        });
+
+        // Editar tarefa
+        function editTask(button) {
+            const li = button.parentElement.parentElement;
+            const taskName = prompt("Editar Tarefa", li.children[0].querySelector("strong").innerText);
+            const taskDescription = prompt("Editar Descrição", li.children[0].querySelector("p").innerText);
+            if (taskName) li.children[0].querySelector("strong").innerText = taskName;
+            if (taskDescription) li.children[0].querySelector("p").innerText = taskDescription;
+        }
+
+        // Remover tarefa
+        function removeTask(button) {
+            if (confirm("Tem certeza que deseja remover esta tarefa?")) {
+                button.parentElement.parentElement.remove();
+            }
+        }
+
+        // Entrar na tarefa
+        function enterTask(button) {
+            const li = button.parentElement.parentElement;
+            const taskName = li.children[0].querySelector("strong").innerText;
+            const taskDate = li.children[0].querySelector("small").innerText;
+            const taskDescription = li.children[0].querySelector("p").innerText;
+
+            // Modificar o HTML
+            document.body.innerHTML = `
+                <h1>${taskName}</h1>
+                <p><strong>Data e Hora:</strong> ${taskDate}</p>
+                <p><strong>Descrição:</strong> ${taskDescription}</p>
+                <button onclick="location.reload()">Voltar</button>
+            `;
+        }
+
+        // Ajustar data e hora do sistema como padrão
+        document.getElementById("taskDate").value = new Date().toISOString().slice(0, 16);
+    </script>
+</body>
+</html>
+

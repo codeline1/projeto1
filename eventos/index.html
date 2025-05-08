@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registro de Eventos</title>
+</head>
+<body>
+    <h1>Registro de Eventos</h1>
+    <button onclick="adicionarEvento()">Adicionar Evento</button>
+    <button onclick="salvarJSON()">Salvar em JSON</button>
+    <input type="file" id="arquivoJSON" onchange="carregarJSON()">
+
+    <div id="eventos"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

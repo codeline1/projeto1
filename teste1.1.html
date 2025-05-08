@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Teste soares</title>
+<body>
+
+	<input type="text" id="name" value="soares" name="Digite seu nome">
+	<input type="number" id="age" value="23" name="Digite sua idade">
+	<div id="status">Status:</div><br>
+	<button onclick="addData()">Adicinar</button>
+
+	<script>
+		   function addData() {
+      const name = document.getElementById("name").value.trim();
+      const age = document.getElementById("age").value.trim();
+      let valorIn = document.getElementById("status");
+
+      if (!name || !age) {
+        valorIn.innerText = ("Por favor, preencha todos os campos!");
+        return;
+      }
+
+      valorIn.innerHTML += (`<br>Nome: ${name}, Idade: ${age}<br>`);
+    }
+	</script>
+
+
+</body>
+
+</html>

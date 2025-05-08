@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List - CRUD Completo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        form {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        input {
+            padding: 10px;
+            margin-right: 5px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+            max-width: 400px;
+            margin: 20px auto;
+        }
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fff;
+            margin: 5px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .enter-btn, .edit-btn, .delete-btn {
+            padding: 5px 10px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .enter-btn {
+            background-color: #28a745;
+        }
+        .enter-btn:hover {
+            background-color: #218838;
+        }
+        .edit-btn {
+            background-color: #ffc107;
+        }
+        .edit-btn:hover {
+            background-color: #e0a800;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+        #taskPage {
+            display: none;
+            text-align: center;
+        }
+        #taskPage button {
+            margin-top: 20px;
+            background-color: #6c757d;
+        }
+        #taskPage button:hover {
+            background-color: #5a6268;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 1em;
+        }
+        nav {
+            background-color: #333;
+            overflow: hidden;
+        }
+        nav a {
+            float: left;
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        nav a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+        .container {
+            padding: 20px;
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 1em;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>To-Do List - CRUD Completo</h1>
+
+    <!-- Formulário para Adicionar Tarefa -->
+    <form id="taskForm">
+        <input type="text" id="taskInput" placeholder="Digite sua tarefa" required>
+        <button type="submit">Adicionar Tarefa</button>
+    </form>
+
+    <!-- Botões para Salvar e Carregar -->
+    <div style="text-align: center;">
+        <button id="saveToFileButton">Salvar Lista (JSON)</button>
+        <button id="loadFromFileButton">Carregar Lista (JSON)</button>
+        <input type="file" id="fileInput" style="display: none;">
+    </div>
+
+    <!-- Lista de Tarefas -->
+    <ul id="taskList"></ul>
+
+    <!-- Página da Tarefa -->
+    <div id="taskPage">
+        <h2 id="taskTitle"></h2>
+       
+    </div>
+    <button id="backButton">Voltar</button>
+
+    <script>
+        // Array para armazenar as tarefas
+        let tasks = [];
+
+        // Seletores de elementos HTML
+        const taskForm = document.getElementById('taskForm');
+        const taskInput = document.getElementById('taskInput');
+        const taskList = document.getElementById('taskList');
+        const taskPage = document.getElementById('taskPage');
+        const taskTitle = document.getElementById('taskTitle');
+        const backButton = document.getElementById('backButton');
+        const saveToFileButton = document.getElementById('saveToFileButton');
+        const loadFromFileButton = document.getElementById('loadFromFileButton');
+        const fileInput = document.getElementById('fileInput');
+
+        // Função para renderizar as tarefas na tela
+        function renderTasks() {
+            taskList.innerHTML = ''; // Limpa a lista antes de renderizar
+            taskList.style.display = 'block';
+            taskPage.style.display = 'none';
+            tasks.forEach((task, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span>${task.text}</span>
+                    <div>
+                        <button class="enter-btn" onclick="enterTask(${index})">Entrar</button>
+                        <button class="edit-btn" onclick="editTask(${index})">Editar</button>
+                        <button class="delete-btn" onclick="deleteTask(${index})">Excluir</button>
+                    </div>
+                `;
+                taskList.appendChild(li);
+            });
+        }
+
+        // Adicionar Tarefa
+        taskForm.addEventListener('submit', (event) => {
+            event.preventDefault(); // Impede o envio do formulário
+            const taskText = taskInput.value.trim();
+            if (taskText) {
+                tasks.push({ text: taskText });
+                taskInput.value = ''; // Limpa o campo de entrada
+                renderTasks(); // Atualiza a lista
+            }
+        });
+
+        // Entrar na Tarefa
+        function enterTask(index) {
+            taskList.style.display = 'none';
+            taskPage.style.display = 'block';
+            taskPage.innerHTML = `
+
+    <header>
+        <h1>${tasks[index].text}</h1>
+    </header>
+    <nav>
+        <a href="#">Início</a>
+        <a href="#">Sobre</a>
+        <a href="#">Serviços</a>
+        <a href="#">Contato</a>
+    </nav>
+    
+    <div class="container">
+        <h2>Conteúdo Principal</h2>
+        <p>Este é um exemplo de uma página HTML estilosa com CSS embutido. Você pode personalizar o conteúdo e o estilo conforme sua necessidade.</p>
+    </div>
+    <div>
+        <button class="enter-btn" onclick="voltarTask(${index})">Voltar</button>
+    </div>
+`;
+
+        }
+
+        function voltarTask(index) {
+
+        // Voltar para a Lista
+        backButton.addEventListener('click', () => {
+            renderTasks();
+        });
+    }
+
+        // Editar Tarefa
+        function editTask(index) {
+            const newTaskText = prompt("Edite a tarefa:", tasks[index].text);
+            if (newTaskText !== null && newTaskText.trim() !== '') {
+                tasks[index].text = newTaskText.trim();
+                renderTasks();
+            }
+        }
+
+        // Excluir Tarefa
+        function deleteTask(index) {
+            if (confirm("Tem certeza que deseja excluir esta tarefa?")) {
+                tasks.splice(index, 1); // Remove a tarefa pelo índice
+                renderTasks();
+            }
+        }
+
+        // Salvar Lista em Arquivo JSON com Nome Personalizado
+        saveToFileButton.addEventListener('click', () => {
+            const filename = prompt("Digite o nome do arquivo JSON (ex: minhas_tarefas.json):", "minhas_tarefas.json");
+            if (filename) {
+                const data = JSON.stringify(tasks, null, 2);
+                const blob = new Blob([data], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename.endsWith('.json') ? filename : `${filename}.json`;
+                a.click();
+            }
+        });
+
+        // Carregar Lista de Arquivo JSON
+        loadFromFileButton.addEventListener('click', () => {
+            fileInput.click(); // Simula o clique no input de arquivo
+        });
+
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    tasks = JSON.parse(e.target.result); // Atualiza o array de tarefas
+                    renderTasks();
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        // Inicializar com renderização vazia
+        renderTasks();
+    </script>
+</body>
+</html>
+

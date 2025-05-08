@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+            color: #007bff;
+        }
+        #taskForm, #saveForm {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        #taskForm input, #taskForm textarea, #saveForm input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        #taskForm button, #saveForm button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #taskList {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 0;
+            list-style-type: none;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        #taskList li {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #taskList li:last-child {
+            border-bottom: none;
+        }
+        .task-buttons button {
+            margin-left: 5px;
+            padding: 5px 10px;
+            border: 1px solid #007bff;
+            background-color: #fff;
+            color: #007bff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .task-buttons button:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+        #taskDetails {
+            display: none;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .task-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Minha To-Do List</h1>
+
+    <!-- Formulário para adicionar tarefas -->
+    <form id="taskForm">
+        <input type="text" id="taskName" placeholder="Tarefa" required>
+        <input type="datetime-local" id="taskDate" value="" required>
+        <textarea id="taskDescription" placeholder="Descrição"></textarea>
+        <label>
+            <input type="checkbox" id="inProgress" checked> Em Andamento
+        </label>
+        <label>
+            <input type="checkbox" id="completed"> Finalizado
+        </label>
+        <button type="button" id="addTaskBtn">Adicionar Tarefa</button>
+    </form>
+
+    <!-- Lista de tarefas -->
+    <ul id="taskList"></ul>
+
+    <!-- Detalhes da tarefa -->
+    <div id="taskDetails">
+        <h2 id="taskTitle">Detalhes da Tarefa</h2>
+        <p><strong>Data e Hora:</strong> <span id="taskDetailsDate"></span></p>
+        <p><strong>Descrição:</strong> <span id="taskDetailsDescription"></span></p>
+        <div class="task-buttons">
+            <button id="saveBtn">Salvar como JSON</button>
+            <button id="loadBtn">Carregar Tarefas</button>
+            <button id="addNoteBtn">Adicionar Observação</button>
+        </div>
+        <div>
+            <button id="backBtn">Voltar</button>
+        </div>
+    </div>
+
+    <script>
+        const taskList = document.getElementById("taskList");
+        const taskDetails = document.getElementById("taskDetails");
+        const taskForm = document.getElementById("taskForm");
+
+        let tasks = [];
+
+        // Adicionar tarefa
+        document.getElementById("addTaskBtn").addEventListener("click", () => {
+            const taskName = document.getElementById("taskName").value;
+            const taskDate = document.getElementById("taskDate").value;
+            const taskDescription = document.getElementById("taskDescription").value;
+            const inProgress = document.getElementById("inProgress").checked;
+            const completed = document.getElementById("completed").checked;
+
+            if (!taskName || !taskDate) {
+                alert("Por favor, preencha os campos obrigatórios.");
+                return;
+            }
+
+            const task = {
+                name: taskName,
+                date: taskDate,
+                description: taskDescription,
+                inProgress,
+                completed,
+            };
+
+            tasks.push(task);
+
+            const li = document.createElement("li");
+            li.innerHTML = `
+                <span>
+                    <strong>${taskName}</strong><br>
+                    <small>${taskDate}</small><br>
+                    <p>${taskDescription}</p>
+                </span>
+                <div class="task-buttons">
+                    <button onclick="enterTask(this)">Entrar</button>
+                    <button onclick="editTask(this)">Editar</button>
+                    <button onclick="removeTask(this)">Remover</button>
+                </div>
+            `;
+            taskList.appendChild(li);
+
+            // Limpar formulário
+            document.getElementById("taskForm").reset();
+        });
+
+        // Editar tarefa
+        function editTask(button) {
+            const li = button.parentElement.parentElement;
+            const taskName = prompt("Editar Tarefa", li.children[0].querySelector("strong").innerText);
+            const taskDescription = prompt("Editar Descrição", li.children[0].querySelector("p").innerText);
+            if (taskName) li.children[0].querySelector("strong").innerText = taskName;
+            if (taskDescription) li.children[0].querySelector("p").innerText = taskDescription;
+        }
+
+        // Remover tarefa
+        function removeTask(button) {
+            if (confirm("Tem certeza que deseja remover esta tarefa?")) {
+                button.parentElement.parentElement.remove();
+            }
+        }
+
+        // Entrar na tarefa
+        function enterTask(button) {
+            const li = button.parentElement.parentElement;
+            const taskName = li.children[0].querySelector("strong").innerText;
+            const taskDate = li.children[0].querySelector("small").innerText;
+            const taskDescription = li.children[0].querySelector("p").innerText;
+
+            // Mostrar detalhes da tarefa
+            document.getElementById("taskTitle").innerText = taskName;
+            document.getElementById("taskDetailsDate").innerText = taskDate;
+            document.getElementById("taskDetailsDescription").innerText = taskDescription;
+
+            taskDetails.style.display = "block";
+            taskForm.style.display = "none";
+            taskList.style.display = "none";
+        }
+
+        // Voltar para a lista
+        document.getElementById("backBtn").addEventListener("click", () => {
+            taskDetails.style.display = "none";
+            taskForm.style.display = "block";
+            taskList.style.display = "block";
+        });
+
+        // Salvar tarefas em JSON
+        document.getElementById("saveBtn").addEventListener("click", () => {
+            const fileName = prompt("Digite o nome do arquivo (sem extensão):");
+            if (fileName) {
+                const blob = new Blob([JSON.stringify(tasks, null, 2)], { type: "application/json" });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = `${fileName}.json`;
+                link.click();
+            }
+        });
+
+        // Carregar e exibir tarefas
+        document.getElementById("loadBtn").addEventListener("click", () => {
+            const inputFile = document.createElement("input");
+            inputFile.type = "file";
+            inputFile.accept = ".json";
+            inputFile.addEventListener("change", (event) => {
+                const file = event.target.files[0];
+                if (file && file.type === "application/json") {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        tasks = JSON.parse(e.target.result);
+                        taskList.innerHTML = ""; // Limpar a lista existente
+                        tasks.forEach(task => {
+                            const li = document.createElement("li");
+                            li.innerHTML = `
+                                <span>
+                                    <strong>${task.name}</strong><br>
+                                    <small>${task.date}</small><br>
+                                    <p>${task.description}</p>
+                                </span>
+                                <div class="task-buttons">
+                                    <button onclick="enterTask(this)">Entrar</button>
+                                    <button onclick="editTask(this)">Editar</button>
+                                    <button onclick="removeTask(this)">Remover</button>
+                                </div>
+                            `;
+                            taskList.appendChild(li);
+                        });
+                    };
+                    reader.readAsText(file);
+                } else {
+                    alert("Por favor, selecione um arquivo JSON válido.");
+                }
+            });
+            inputFile.click();
+        });
+
+        // Adicionar observação
+        document.getElementById("addNoteBtn").addEventListener("click", () => {
+            const note = prompt("Digite a observação:");
+            if (note) {
+                document.getElementById("taskDetailsDescription").innerText += `\n\nObservação: ${note}`;
+            }
+        });
+
+        // Ajustar data e hora do sistema como padrão
+        document.getElementById("taskDate").value = new Date().toISOString().slice(0, 16);
+    </script>
+</body>
+</html>
+

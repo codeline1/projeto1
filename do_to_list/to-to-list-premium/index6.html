@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List com Sub-Tarefas</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background: #f4f4f4;
+            padding: 20px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            width: 350px;
+        }
+        .hidden { display: none; }
+        ul { list-style-type: none; padding: 0; }
+        li { 
+            cursor: pointer; 
+            padding: 10px; 
+            border-radius: 5px;
+            background: #e0e0e0;
+            margin: 5px 0;
+            transition: 0.3s;
+        }
+        li:hover { background: #d6d6d6; }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 5px;
+        }
+        input {
+            border: 1px solid #ccc;
+        }
+        button {
+            background: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="taskPage">
+        <h2>Lista de Tarefas</h2>
+        <input type="text" id="taskInput" placeholder="Nova Tarefa">
+        <button onclick="addTask()">Adicionar</button>
+        <button onclick="saveToFile()">Salvar</button>
+        <button onclick="loadFromFile()">Carregar</button>
+        <button onclick="clearLocalStorage()">Limpar</button>
+        <ul id="taskList"></ul>
+    </div>
+    
+    <div class="container hidden" id="subtaskPage">
+        <button onclick="goBack()">Voltar</button>
+        <h2 id="taskTitle"></h2>
+        <input type="text" id="subtaskInput" placeholder="Nova Sub-Tarefa">
+        <button onclick="addSubtask()">Adicionar</button>
+        <ul id="subtaskList"></ul>
+    </div>
+
+    <div class="container hidden" id="subtaskDetailPage">
+        <button onclick="goBackToSubtasks()">Voltar</button>
+        <h1 id="subtaskTitle"></h1>
+    </div>
+
+    <script>
+        let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+        let currentTaskIndex = null;
+
+        function addTask() {
+            const taskInput = document.getElementById("taskInput");
+            if (taskInput.value.trim() === "") return;
+            tasks.push({ name: taskInput.value, subtasks: [] });
+            taskInput.value = "";
+            saveToLocalStorage();
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const taskList = document.getElementById("taskList");
+            taskList.innerHTML = "";
+            tasks.forEach((task, index) => {
+                const li = document.createElement("li");
+                li.textContent = task.name;
+                li.onclick = () => openSubtasks(index);
+                taskList.appendChild(li);
+            });
+        }
+
+        function openSubtasks(index) {
+            currentTaskIndex = index;
+            document.getElementById("taskTitle").textContent = tasks[index].name;
+            document.getElementById("taskPage").classList.add("hidden");
+            document.getElementById("subtaskPage").classList.remove("hidden");
+            renderSubtasks();
+        }
+
+        function addSubtask() {
+            const subtaskInput = document.getElementById("subtaskInput");
+            if (subtaskInput.value.trim() === "") return;
+            tasks[currentTaskIndex].subtasks.push(subtaskInput.value);
+            subtaskInput.value = "";
+            saveToLocalStorage();
+            renderSubtasks();
+        }
+
+        function renderSubtasks() {
+            const subtaskList = document.getElementById("subtaskList");
+            subtaskList.innerHTML = "";
+            tasks[currentTaskIndex].subtasks.forEach((subtask, index) => {
+                const li = document.createElement("li");
+                li.textContent = subtask;
+                li.onclick = () => openSubtaskDetail(subtask);
+                subtaskList.appendChild(li);
+            });
+        }
+
+        function openSubtaskDetail(subtaskName) {
+            document.getElementById("subtaskTitle").textContent = subtaskName;
+            document.getElementById("subtaskPage").classList.add("hidden");
+            document.getElementById("subtaskDetailPage").classList.remove("hidden");
+        }
+
+        function goBack() {
+            document.getElementById("taskPage").classList.remove("hidden");
+            document.getElementById("subtaskPage").classList.add("hidden");
+        }
+
+        function goBackToSubtasks() {
+            document.getElementById("subtaskPage").classList.remove("hidden");
+            document.getElementById("subtaskDetailPage").classList.add("hidden");
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+        }
+
+        function saveToFile() {
+            const blob = new Blob([JSON.stringify(tasks, null, 2)], { type: "application/json" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "tasks.json";
+            a.click();
+        }
+
+        function loadFromFile() {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.accept = "application/json";
+            input.addEventListener("change", function () {
+                const file = input.files[0];
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    tasks = JSON.parse(e.target.result);
+                    saveToLocalStorage();
+                    renderTasks();
+                };
+                reader.readAsText(file);
+            });
+            input.click();
+        }
+
+        function clearLocalStorage() {
+            localStorage.removeItem("tasks");
+            tasks = [];
+            renderTasks();
+        }
+
+        renderTasks();
+    </script>
+</body>
+</html>
+

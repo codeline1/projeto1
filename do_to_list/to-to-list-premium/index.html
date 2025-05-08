@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List com Sub-Tarefas</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background: #f4f4f4;
+            padding: 20px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            width: 350px;
+        }
+        .hidden { display: none; }
+        ul { list-style-type: none; padding: 0; }
+        li { 
+            cursor: pointer; 
+            padding: 10px; 
+            border-radius: 5px;
+            background: #e0e0e0;
+            margin: 5px 0;
+            transition: 0.3s;
+        }
+        li:hover { background: #d6d6d6; }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 5px;
+        }
+        input {
+            border: 1px solid #ccc;
+        }
+        button {
+            background: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .back-btn {
+            margin-bottom: 10px; 
+            cursor: pointer; 
+            color: blue; 
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="taskPage">
+            <h2>Lista de Tarefas</h2>
+            <input type="text" id="taskInput" placeholder="Nova Tarefa">
+            <button onclick="addTask()">Adicionar</button>
+            <ul id="taskList"></ul>
+        </div>
+        
+        <div id="subtaskPage" class="hidden">
+            <span class="back-btn" onclick="goBack()">&#8592; Voltar</span>
+            <h2 id="taskTitle"></h2>
+            <input type="text" id="subtaskInput" placeholder="Nova Sub-Tarefa">
+            <button onclick="addSubtask()">Adicionar</button>
+            <ul id="subtaskList"></ul>
+        </div>
+    </div>
+
+    <script>
+        let tasks = [];
+        let currentTaskIndex = null;
+
+        function addTask() {
+            const taskInput = document.getElementById("taskInput");
+            if (taskInput.value.trim() === "") return;
+            tasks.push({ name: taskInput.value, subtasks: [] });
+            taskInput.value = "";
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const taskList = document.getElementById("taskList");
+            taskList.innerHTML = "";
+            tasks.forEach((task, index) => {
+                const li = document.createElement("li");
+                li.textContent = task.name;
+                li.onclick = () => openSubtasks(index);
+                taskList.appendChild(li);
+            });
+        }
+
+        function openSubtasks(index) {
+            currentTaskIndex = index;
+            document.getElementById("taskTitle").textContent = tasks[index].name;
+            document.getElementById("taskPage").classList.add("hidden");
+            document.getElementById("subtaskPage").classList.remove("hidden");
+            renderSubtasks();
+        }
+
+        function addSubtask() {
+            const subtaskInput = document.getElementById("subtaskInput");
+            if (subtaskInput.value.trim() === "") return;
+            tasks[currentTaskIndex].subtasks.push(subtaskInput.value);
+            subtaskInput.value = "";
+            renderSubtasks();
+        }
+
+        function renderSubtasks() {
+            const subtaskList = document.getElementById("subtaskList");
+            subtaskList.innerHTML = "";
+            tasks[currentTaskIndex].subtasks.forEach(subtask => {
+                const li = document.createElement("li");
+                li.textContent = subtask;
+                subtaskList.appendChild(li);
+            });
+        }
+
+        function goBack() {
+            document.getElementById("taskPage").classList.remove("hidden");
+            document.getElementById("subtaskPage").classList.add("hidden");
+        }
+    </script>
+</body>
+</html>
+

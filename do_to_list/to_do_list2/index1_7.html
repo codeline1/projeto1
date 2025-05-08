@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8"> <!-- Define o charset para UTF-8, que cobre a maioria dos caracteres, incluindo os acentuados do português -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Garante que a página seja responsiva, ajustando o layout para diferentes tamanhos de tela -->
+    <title>To-Do List</title> <!-- Define o título da página exibido na aba do navegador -->
+    <style>
+        /* Estilos globais e para os elementos de interface */
+        body {
+            font-family: Arial, sans-serif; /* Define a fonte usada na página */
+            margin: 0; /* Remove a margem padrão da página */
+            padding: 0; /* Remove o padding padrão */
+            background-color: #f4f4f4; /* Cor de fundo da página */
+        }
+        h1 {
+            text-align: center; /* Centraliza o título */
+            margin-top: 20px; /* Espaçamento superior para o título */
+            color: #007bff; /* Cor do texto do título */
+        }
+        #taskForm, #saveForm {
+            max-width: 600px; /* Limita a largura do formulário */
+            margin: 20px auto; /* Centraliza o formulário na tela */
+            padding: 20px; /* Espaçamento interno do formulário */
+            background: #fff; /* Cor de fundo do formulário */
+            border-radius: 10px; /* Bordas arredondadas */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave para o formulário */
+        }
+        #taskForm input, #taskForm textarea, #saveForm input {
+            width: 100%; /* Faz os campos de entrada ocuparem toda a largura disponível */
+            padding: 10px; /* Espaçamento interno dos campos de entrada */
+            margin-bottom: 15px; /* Espaçamento abaixo dos campos */
+            border: 1px solid #ddd; /* Borda sutil nos campos */
+            border-radius: 5px; /* Bordas arredondadas para os campos */
+            font-size: 16px; /* Tamanho da fonte dentro dos campos */
+        }
+        #taskForm button, #saveForm button {
+            padding: 10px 20px; /* Tamanho do botão */
+            background-color: #007bff; /* Cor de fundo do botão */
+            color: #fff; /* Cor do texto do botão */
+            border: none; /* Remove bordas do botão */
+            border-radius: 5px; /* Bordas arredondadas para o botão */
+            cursor: pointer; /* Indica que o botão é clicável */
+        }
+        #taskList {
+            max-width: 600px; /* Limita a largura da lista de tarefas */
+            margin: 20px auto; /* Centraliza a lista na tela */
+            padding: 0; /* Remove o padding da lista */
+            list-style-type: none; /* Remove os marcadores da lista */
+            background: #fff; /* Cor de fundo da lista */
+            border-radius: 10px; /* Bordas arredondadas */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave para a lista */
+        }
+        #taskList li {
+            padding: 15px; /* Espaçamento dentro de cada item da lista */
+            border-bottom: 1px solid #ddd; /* Borda entre os itens da lista */
+            display: flex; /* Usa o modelo de layout flexível */
+            justify-content: space-between; /* Distribui os itens de forma equilibrada */
+            align-items: center; /* Alinha os itens verticalmente ao centro */
+        }
+        #taskList li:last-child {
+            border-bottom: none; /* Remove a borda do último item da lista */
+        }
+        .task-buttons button {
+            margin-left: 5px; /* Espaço entre os botões */
+            padding: 5px 10px; /* Tamanho dos botões */
+            border: 1px solid #007bff; /* Borda azul ao redor do botão */
+            background-color: #fff; /* Fundo branco para os botões */
+            color: #007bff; /* Cor do texto azul para os botões */
+            border-radius: 5px; /* Bordas arredondadas */
+            cursor: pointer; /* Indica que o botão é clicável */
+        }
+        .task-buttons button:hover {
+            background-color: #007bff; /* Fundo azul ao passar o mouse */
+            color: #fff; /* Cor do texto branca ao passar o mouse */
+        }
+        #taskDetails {
+            display: none; /* Inicialmente oculta a página de detalhes da tarefa */
+            max-width: 600px; /* Largura máxima da página de detalhes */
+            margin: 20px auto; /* Centraliza a página de detalhes */
+            padding: 20px; /* Espaçamento interno */
+            background: #fff; /* Cor de fundo */
+            border-radius: 10px; /* Bordas arredondadas */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave */
+        }
+        .task-buttons {
+            margin-top: 20px; /* Espaçamento superior para os botões */
+            display: flex; /* Exibe os botões lado a lado */
+            gap: 10px; /* Espaçamento entre os botões */
+        }
+    </style>
+</head>
+<body>
+    <h1>Minha To-Do List</h1>
+
+    <!-- Formulário para adicionar tarefas -->
+    <form id="taskForm">
+        <input type="text" id="taskName" placeholder="Tarefa" required> <!-- Campo para nome da tarefa -->
+        <input type="datetime-local" id="taskDate" value="" required> <!-- Campo para data e hora -->
+        <textarea id="taskDescription" placeholder="Descrição"></textarea> <!-- Campo para descrição da tarefa -->
+        <label>
+            <input type="checkbox" id="inProgress" checked> Em Andamento <!-- Checkbox para 'Em Andamento' marcado por padrão -->
+        </label>
+        <label>
+            <input type="checkbox" id="completed"> Finalizado <!-- Checkbox para 'Finalizado' -->
+        </label>
+        <button type="button" id="addTaskBtn">Adicionar Tarefa</button> <!-- Botão para adicionar tarefa -->
+        <button type="button" id="loadTasksBtn">Carregar Tarefas</button> <!-- Botão para carregar tarefas a partir de um arquivo JSON -->
+    </form>
+
+    <!-- Lista de tarefas -->
+    <ul id="taskList"></ul> <!-- Lista onde as tarefas serão exibidas -->
+
+    <!-- Detalhes da tarefa -->
+    <div id="taskDetails">
+        <h2 id="taskTitle">Detalhes da Tarefa</h2> <!-- Título da tarefa detalhada -->
+        <p><strong>Data e Hora:</strong> <span id="taskDetailsDate"></span></p> <!-- Exibe a data e hora da tarefa -->
+        <p><strong>Descrição:</strong> <span id="taskDetailsDescription"></span></p> <!-- Exibe a descrição da tarefa -->
+        <div class="task-buttons">
+            <button id="saveBtn">Salvar como JSON</button> <!-- Botão para salvar os dados como um arquivo JSON -->
+            <button id="addNoteBtn">Adicionar Observação</button> <!-- Botão para adicionar uma observação à tarefa -->
+        </div>
+        <div>
+            <button id="backBtn">Voltar</button> <!-- Botão para voltar à lista de tarefas -->
+        </div>
+    </div>
+
+    <script>
+        const taskList = document.getElementById("taskList"); // Obtém o elemento de lista de tarefas
+        const taskDetails = document.getElementById("taskDetails"); // Obtém o elemento de detalhes da tarefa
+        const taskForm = document.getElementById("taskForm"); // Obtém o formulário de tarefas
+
+        let tasks = []; // Array para armazenar as tarefas
+        let currentTaskIndex = -1; // Índice da tarefa atual que está sendo visualizada/editar
+
+        // Adicionar tarefa
+        document.getElementById("addTaskBtn").addEventListener("click", () => {
+            const taskName = document.getElementById("taskName").value; // Obtém o nome da tarefa
+            const taskDate = document.getElementById("taskDate").value; // Obtém a data da tarefa
+            const taskDescription = document.getElementById("taskDescription").value; // Obtém a descrição da tarefa
+            const inProgress = document.getElementById("inProgress").checked; // Verifica se está marcado como 'Em Andamento'
+            const completed = document.getElementById("completed").checked; // Verifica se está marcado como 'Finalizado'
+
+            // Validação para garantir que os campos obrigatórios estão preenchidos
+            if (!taskName || !taskDate) {
+                alert("Por favor, preencha os campos obrigatórios.");
+                return;
+            }
+
+            const task = { // Cria um objeto de tarefa
+                name: taskName,
+                date: taskDate,
+                description: taskDescription,
+                inProgress,
+                completed,
+            };
+
+            tasks.push(task); // Adiciona a tarefa no array de tarefas
+
+            const li = document.createElement("li"); // Cria um novo item de lista para a tarefa
+            li.innerHTML = `
+                <span>
+                    <strong>${taskName}</strong><br>
+                    <small>${taskDate}</small><br>
+                    <p>${taskDescription}</p>
+                </span>
+                <div class="task-buttons">
+                    <button onclick="enterTask(this)">Entrar</button>
+                    <button onclick="editTask(this)">Editar</button>
+                    <button onclick="removeTask(this)">Remover</button>
+                </div>
+            `;
+            taskList.appendChild(li); // Adiciona a tarefa à lista
+
+            document.getElementById("taskForm").reset(); // Limpa o formulário
+        });
+
+        // Editar tarefa
+        function editTask(button) {
+            const li = button.parentElement.parentElement; // Obtém o item de lista correspondente à tarefa
+            const taskName = prompt("Editar Tarefa", li.children[0].querySelector("strong").innerText); // Solicita ao usuário o novo nome da tarefa
+            const taskDescription = prompt("Editar Descrição", li.children[0].querySelector("p").innerText); // Solicita a nova descrição
+            if (taskName) li.children[0].querySelector("strong").innerText = taskName; // Atualiza o nome da tarefa
+            if (taskDescription) li.children[0].querySelector("p").innerText = taskDescription; // Atualiza a descrição
+        }
+
+        // Remover tarefa
+        function removeTask(button) {
+            if (confirm("Tem certeza que deseja remover esta tarefa?")) { // Pergunta ao usuário antes de remover
+                button.parentElement.parentElement.remove(); // Remove o item da lista
+            }
+        }
+
+        // Entrar na tarefa
+        function enterTask(button) {
+            const li = button.parentElement.parentElement; // Obtém o item de lista correspondente
+            const taskName = li.children[0].querySelector("strong").innerText; // Obtém o nome da tarefa
+            const taskDate = li.children[0].querySelector("small").innerText; // Obtém a data da tarefa
+            const taskDescription = li.children[0].querySelector("p").innerText; // Obtém a descrição da tarefa
+
+            currentTaskIndex = tasks.findIndex(task => task.name === taskName && task.date === taskDate); // Encontra o índice da tarefa no array
+
+            // Exibe os detalhes da tarefa
+            document.getElementById("taskTitle").innerText = taskName;
+            document.getElementById("taskDetailsDate").innerText = taskDate;
+            document.getElementById("taskDetailsDescription").innerText = taskDescription;
+
+            taskDetails.style.display = "block"; // Exibe a página de detalhes
+            taskForm.style.display = "none"; // Oculta o formulário de tarefas
+            taskList.style.display = "none"; // Oculta a lista de tarefas
+        }
+
+        // Voltar para a lista de tarefas
+        document.getElementById("backBtn").addEventListener("click", () => {
+            taskDetails.style.display = "none"; // Oculta a página de detalhes
+            taskForm.style.display = "block"; // Exibe o formulário de tarefas
+            taskList.style.display = "block"; // Exibe a lista de tarefas
+        });
+
+        // Salvar tarefas em JSON
+        document.getElementById("saveBtn").addEventListener("click", () => {
+            const fileName = prompt("Digite o nome do arquivo (sem extensão):"); // Solicita o nome do arquivo
+            if (fileName) {
+                const blob = new Blob([JSON.stringify(tasks, null, 2)], { type: "application/json" }); // Cria um blob contendo as tarefas no formato JSON
+                const link = document.createElement("a"); // Cria um link temporário
+                link.href = URL.createObjectURL(blob); // Cria um URL para o blob
+                link.download = fileName + ".json"; // Define o nome do arquivo para download
+                link.click(); // Simula um clique para baixar o arquivo
+            }
+        });
+
+        // Carregar tarefas de um arquivo JSON
+        document.getElementById("loadTasksBtn").addEventListener("click", () => {
+            const input = document.createElement("input"); // Cria um input de arquivo
+            input.type = "file"; // Define o tipo como arquivo
+            input.accept = ".json"; // Limita a seleção a arquivos JSON
+            input.click(); // Simula o clique para abrir a seleção de arquivo
+
+            input.addEventListener("change", () => {
+                const file = input.files[0]; // Obtém o arquivo selecionado
+                const reader = new FileReader(); // Cria um objeto FileReader para ler o arquivo
+
+                reader.onload = () => {
+                    try {
+                        tasks = JSON.parse(reader.result); // Converte o conteúdo do arquivo JSON para um array de tarefas
+                        alert("Tarefas carregadas com sucesso!");
+                    } catch (e) {
+                        alert("Erro ao carregar o arquivo.");
+                    }
+                };
+
+                reader.readAsText(file); // Lê o conteúdo do arquivo como texto
+            });
+        });
+    </script>
+</body>
+</html>
+

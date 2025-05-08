@@ -1,0 +1,12 @@
+ body {
+            font-family: Arial, sans-serif; /* Define a fonte usada na página */
+            margin: 0; /* Remove a margem padrão da página */
+            padding: 0; /* Remove o padding padrão */
+            background-color: #f4f4f4; /* Cor de fundo da página */
+        }
+
+        h1 {
+            text-align: center; /* Centraliza o título */
+            margin-top: 20px; /* Espaçamento superior para o título */
+            color: #007bff; /* Cor do texto do título */
+        }

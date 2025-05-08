@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+  <title>CRUD com JavaScript Puro</title>
+  
+</head>
+<body>
+  <h1>CRUD com JavaScript Puro</h1>
+  <div class="form-container">
+    <input type="text" id="name" placeholder="Nome">
+    <input type="number" id="age" placeholder="Idade">
+    <button onclick="addData()">Adicionar</button>
+  </div>
+  <table id="data-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Idade</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Linhas serão adicionadas dinamicamente -->
+    </tbody>
+  </table>
+  <div class="save-container">
+    <input type="text" id="file-name" placeholder="Nome do arquivo (sem extensão)">
+    <button onclick="saveToFile()">Salvar em JSON</button>
+  </div>
+
+  <script>
+    let idCounter = 1; // Para gerenciar IDs
+    const tableBody = document.querySelector("#data-table tbody");
+
+    // Função para adicionar dados
+    function addData() {
+      const name = document.getElementById("name").value.trim();
+      const age = document.getElementById("age").value.trim();
+
+      if (!name || !age) {
+        alert("Por favor, preencha todos os campos.");
+        return;
+      }
+
+      const newRow = document.createElement("tr");
+      newRow.innerHTML = `
+        <td>${idCounter}</td>
+        <td>${name}</td>
+        <td>${age}</td>
+        <td>
+          <button onclick="editData(this)">Editar</button>
+          <button onclick="deleteData(this)">Deletar</button>
+        </td>
+      `;
+
+      tableBody.appendChild(newRow);
+      idCounter++;
+
+      // Limpar campos de entrada
+      document.getElementById("name").value = "";
+      document.getElementById("age").value = "";
+    }
+
+    // Função para editar dados
+    function editData(button) {
+      const row = button.parentElement.parentElement;
+      const nameCell = row.children[1];
+      const ageCell = row.children[2];
+
+      const newName = prompt("Digite o novo nome:", nameCell.textContent);
+      const newAge = prompt("Digite a nova idade:", ageCell.textContent);
+
+      if (newName) nameCell.textContent = newName.trim();
+      if (newAge) ageCell.textContent = newAge.trim();
+    }
+
+    // Função para deletar dados
+    function deleteData(button) {
+      const row = button.parentElement.parentElement;
+      tableBody.removeChild(row);
+    }
+
+    // Função para salvar dados em um arquivo JSON
+    function saveToFile() {
+      const fileNameInput = document.getElementById("file-name");
+      const fileName = fileNameInput.value.trim() || "dados"; // Nome padrão: "dados"
+      const data = [];
+      const rows = tableBody.querySelectorAll("tr");
+
+      rows.forEach(row => {
+        const id = row.children[0].textContent;
+        const name = row.children[1].textContent;
+        const age = row.children[2].textContent;
+        data.push({ id, name, age });
+      });
+
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${fileName}.json`; // Define o nome do arquivo
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

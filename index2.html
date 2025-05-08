@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Leitor Serial</title>
+</head>
+<body>
+  <button id="conectar">Conectar</button>
+  <select id="portas"></select>
+  <div id="dados"></div>
+
+  <script>
+    // Função para listar as portas seriais disponíveis
+    async function listarPortas() {
+      const portas = await navigator.serial.getPorts();
+      const select = document.getElementById('portas');
+      portas.forEach(porta => {
+        const option = document.createElement('option');
+        option.value = porta.usbVendorId;
+        option.textContent = porta.getInfo().usbProductId;
+        select.appendChild(option);
+      });
+    }
+
+    // Função para conectar à porta serial selecionada
+    async function conectar() {
+      const portaSelecionada = document.getElementById('portas').value;
+      const porta = await navigator.serial.requestPort({ filters: [{ usbVendorId: portaSelecionada }] });
+      await porta.open({ baudRate: 9600 }); // Ajuste a baud rate conforme necessário
+
+      const reader = porta.readable.getReader();
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) {
+          // Conexão encerrada
+          break;
+        }
+        const decoder = new TextDecoder();
+        const output = decoder.decode(value);
+        document.getElementById('dados').textContent += output;
+      }
+    }
+
+    // Chamar a função para listar as portas ao carregar a página
+    window.onload = listarPortas;
+
+    // Adicionar um event listener ao botão para conectar
+    document.getElementById('conectar').addEventListener('click', conectar);
+  </script>
+</body>
+</html>

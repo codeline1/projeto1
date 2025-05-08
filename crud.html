@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRUD com JavaScript Puro</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+    .form-container {
+      margin-top: 20px;
+    }
+    .form-container input {
+      margin-right: 10px;
+    }
+    h1 {
+      font-family: 'Courier New', Courier, monospace;
+      margin-left: 25%;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="display-name">CRUD com JavaScript Puro</h1> <!-- Adicionei o id 'display-name' -->
+  <div class="form-container">
+    <input type="text" id="name" placeholder="Nome">
+    <input type="number" id="age" placeholder="Idade">
+    <button onclick="addData()">Adicionar</button>
+    <div id="teste1">Soares</div>
+  </div>
+  <table id="data-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Idade</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Linhas serão adicionadas dinamicamente -->
+    </tbody>
+  </table>
+
+  <script>
+    let idCounter = 1; // Para gerenciar IDs
+    const tableBody = document.querySelector("#data-table tbody");
+
+    // Função para adicionar dados
+    function addData() {
+      const name = document.getElementById("name").value.trim();
+      const age = document.getElementById("age").value.trim();
+
+      if (!name || !age) {
+        alert("Por favor, preencha todos os campos.");
+        return;
+      }
+
+      const newRow = document.createElement("tr");
+      newRow.innerHTML = `
+        <td>${idCounter}</td>
+        <td>${name}</td>
+        <td>${age}</td>
+        <td>
+          <button onclick="entrarData(this)">Entrar</button>
+          <button onclick="editData(this)">Editar</button>
+          <button onclick="deleteData(this)">Deletar</button>
+        </td>
+      `;
+
+      tableBody.appendChild(newRow);
+      idCounter++;
+
+      // Limpar campos de entrada
+      document.getElementById("name").value = "";
+      document.getElementById("age").value = "";
+    }
+
+    // Função para editar dados
+    function editData(button) {
+      const row = button.parentElement.parentElement;
+      const nameCell = row.children[1];
+      const ageCell = row.children[2];
+
+      const newName = prompt("Digite o novo nome:", nameCell.textContent);
+      const newAge = prompt("Digite a nova idade:", ageCell.textContent);
+
+      if (newName) nameCell.textContent = newName.trim();
+      if (newAge) ageCell.textContent = newAge.trim();
+    }
+
+    // Função para deletar dados
+    function deleteData(button) {
+      const row = button.parentElement.parentElement;
+      tableBody.removeChild(row);
+    }
+
+    // Função para exibir o nome selecionado no <h1> ao clicar no botão 'Entrar'
+    function entrarData(button) {
+      const row = button.parentElement.parentElement;
+      const name = row.children[1].textContent;  // Captura o nome da linha
+      const displayName = document.getElementById("display-name");  // Pega o <h1> com id 'display-name'
+      displayName.textContent = name;  // Exibe o nome no <h1>
+        document.getElementById("data-table").innerHTML = "";
+        const elementos = document.getElementsByClassName("form-container");
+        elementos[0].innerHTML = "";
+    }
+  </script>
+</body>
+</html>

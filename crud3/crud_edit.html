@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carregar e Salvar JSON</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+    .form-container {
+      margin-top: 20px;
+    }
+    .form-container input {
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Carregar, Editar e Salvar Dados JSON</h1>
+  <div class="form-container">
+    <!-- Botão para carregar o arquivo JSON -->
+    <input type="file" id="jsonFile" accept=".json">
+    <button onclick="loadJSON()">Carregar e Exibir</button>
+  </div>
+  <table id="data-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Idade</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Linhas serão adicionadas dinamicamente -->
+    </tbody>
+  </table>
+  <div class="form-container">
+    <!-- Botão para salvar os dados no banco de dados -->
+    <button onclick="saveToDatabase()">Salvar no Banco de Dados</button>
+     <button class="save-button" onclick="saveToFile()">Salvar em JSON</button>
+  </div>
+
+  <script>
+    // Função para carregar e exibir o arquivo JSON
+    function loadJSON() {
+      const fileInput = document.getElementById("jsonFile");
+      const tableBody = document.querySelector("#data-table tbody");
+
+      if (!fileInput.files[0]) {
+        alert("Por favor, selecione um arquivo JSON.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const jsonData = JSON.parse(event.target.result);
+
+        // Limpar tabela antes de exibir os novos dados
+        tableBody.innerHTML = "";
+
+        // Adicionar linhas na tabela com botões
+        jsonData.forEach(item => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${item.id}</td>
+            <td>${item.name}</td>
+            <td>${item.age}</td>
+            <td>
+              <button onclick="editRow(this)">Editar</button>
+              <button onclick="deleteRow(this)">Deletar</button>
+            </td>
+          `;
+          tableBody.appendChild(row);
+        });
+      };
+      reader.readAsText(fileInput.files[0]);
+    }
+
+    // Função para editar uma linha ####
+    function editRow(button) {
+      const row = button.parentElement.parentElement;
+      const nameCell = row.children[1];
+      const ageCell = row.children[2];
+
+      const newName = prompt("Digite o novo nome:", nameCell.textContent);
+      const newAge = prompt("Digite a nova idade:", ageCell.textContent);
+
+      if (newName) nameCell.textContent = newName.trim();
+      if (newAge) ageCell.textContent = newAge.trim();
+    }
+
+    // Função para deletar uma linha ####
+    function deleteRow(button) {
+      const row = button.parentElement.parentElement;
+      row.remove();
+    }
+
+       // Função para salvar dados em um arquivo JSON
+    function saveToFile() {
+      const data = [];
+      const rows = tableBody.querySelectorAll("tr");
+
+      rows.forEach(row => {
+        const id = row.children[0].textContent;
+        const name = row.children[1].textContent;
+        const age = row.children[2].textContent;
+        data.push({ id, name, age });
+      });
+
+    // Função para salvar os dados no banco de dados
+    function saveToDatabase() {
+      const tableBody = document.querySelector("#data-table tbody");
+      const rows = tableBody.querySelectorAll("tr");
+
+      if (rows.length === 0) {
+        alert("Nenhum dado para salvar.");
+        return;
+      }
+
+      const data = Array.from(rows).map(row => {
+        const id = row.children[0].textContent;
+        const name = row.children[1].textContent;
+        const age = row.children[2].textContent;
+        return { id, name, age };
+      });
+
+      // Enviar os dados para o servidor usando Fetch API
+      fetch("save_to_db.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.text())
+      .then(result => {
+        alert(result);
+      })
+      .catch(error => {
+        console.error("Erro ao salvar no banco de dados:", error);
+      });
+    }
+  </script>
+</body>
+</html>

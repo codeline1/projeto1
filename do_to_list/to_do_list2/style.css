@@ -1,0 +1,154 @@
+/* Estilo global */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Cabeçalho */
+h1 {
+    text-align: center;
+    margin: 20px 0;
+    color: #007bff;
+}
+
+/* Estilo geral do formulário */
+form#taskForm {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo dos inputs e textareas */
+form#taskForm input[type="text"],
+form#taskForm input[type="datetime-local"],
+form#taskForm input[type="number"],
+form#taskForm textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+form#taskForm textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Estilo ao focar nos campos */
+form#taskForm input:focus,
+form#taskForm textarea:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 6px rgba(0, 123, 255, 0.3);
+    outline: none;
+}
+
+/* Botão do formulário */
+form#taskForm button {
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+form#taskForm button:hover {
+    background-color: #0056b3;
+}
+
+/* Estilo dos checkboxes */
+form#taskForm input[type="checkbox"] {
+    margin-right: 10px;
+    accent-color: #007bff;
+    cursor: pointer;
+    transform: scale(1.2);
+    vertical-align: middle;
+}
+
+form#taskForm input[type="checkbox"] + label {
+    font-size: 16px;
+    color: #333;
+    margin-right: 20px;
+    cursor: pointer;
+}
+
+/* Estilo da lista */
+ul#taskList {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 0;
+    list-style-type: none;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Itens da lista */
+ul#taskList li {
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+}
+
+ul#taskList li:last-child {
+    border-bottom: none;
+}
+
+/* Título da tarefa */
+ul#taskList .task-title {
+    font-weight: bold;
+    color: #333;
+}
+
+/* Botões de ação */
+ul#taskList li button {
+    background-color: transparent;
+    border: 1px solid #007bff;
+    color: #007bff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+ul#taskList li button:hover {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #0056b3;
+}
+
+/* Estilo responsivo */
+@media (max-width: 480px) {
+    form#taskForm,
+    ul#taskList {
+        padding: 15px;
+    }
+
+    ul#taskList li {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    ul#taskList li button {
+        margin-top: 10px;
+    }
+}
+

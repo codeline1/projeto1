@@ -1,0 +1,3 @@
+Esta html é um este de DOM em script muito bacana:
+
+Estude como estruturar e melhora-la
