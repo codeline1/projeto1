@@ -1,0 +1,2 @@
+estava com dificudade para subir os projetos via git no bash sabe-se que tenho que inserir e-mail do github e em vez da senha um token classic quando pedir a senha.
+vamos para clonar os projetos do github para o meu local.
